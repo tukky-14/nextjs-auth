@@ -1,5 +1,4 @@
-// lib/auth.ts
-import { signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth } from './firebase';
 
 // 型定義
@@ -30,7 +29,9 @@ export const logout = async (): Promise<void> => {
     }
 };
 
-// 現在のユーザーを取得する関数
-export const getCurrentUser = (): User | null => {
-    return auth.currentUser;
+// ユーザーオブザーバーの型定義
+export const observeUser = (setUser: (user: User | null) => void): void => {
+    onAuthStateChanged(auth, (user) => {
+        setUser(user);
+    });
 };

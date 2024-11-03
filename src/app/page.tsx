@@ -1,7 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, loginWithEmail } from './lib/auth';
+import { loginWithEmail } from './lib/auth';
+import { useAuthRedirect } from './hooks/use-auth-redirect';
 
 export default function Login() {
     const router = useRouter();
@@ -9,12 +10,7 @@ export default function Login() {
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        // ログイン済みの場合はHomeページにリダイレクト
-        if (getCurrentUser()) {
-            router.push('pages/home');
-        }
-    }, []);
+    const { loading } = useAuthRedirect('/home', true);
 
     const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -22,12 +18,14 @@ export default function Login() {
 
         try {
             await loginWithEmail(email, password);
-            router.push('/pages/home');
+            router.push('/home');
         } catch (err) {
             setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
             console.error(err); // コンソールでエラーを確認
         }
     };
+
+    if (loading) return <p>読み込み中...</p>;
 
     return (
         <div className="flex h-screen items-center justify-center bg-gray-200 text-gray-700">
